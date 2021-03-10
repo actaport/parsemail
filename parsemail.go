@@ -17,7 +17,7 @@ const contentTypeMultipartMixed = "multipart/mixed"
 const contentTypeMultipartAlternative = "multipart/alternative"
 const contentTypeMultipartRelated = "multipart/related"
 const contentTypeMultipartSigned = "multipart/signed"
-const contentTypeTextHtml = "text/html"
+const contentTypeTextHTML = "text/html"
 const contentTypeTextPlain = "text/plain"
 
 // this is a "special" content-type
@@ -53,7 +53,7 @@ func Parse(r io.Reader) (email Email, err error) {
 	case contentTypeTextPlain:
 		message, _ := ioutil.ReadAll(msg.Body)
 		email.TextBody = strings.TrimSuffix(string(message[:]), "\n")
-	case contentTypeTextHtml:
+	case contentTypeTextHTML:
 		message, _ := ioutil.ReadAll(msg.Body)
 		email.HTMLBody = strings.TrimSuffix(string(message[:]), "\n")
 	default:
@@ -79,10 +79,10 @@ func createEmailFromHeader(header mail.Header) (email Email, err error) {
 	email.ResentTo = hp.parseAddressList(header.Get("Resent-To"))
 	email.ResentCc = hp.parseAddressList(header.Get("Resent-Cc"))
 	email.ResentBcc = hp.parseAddressList(header.Get("Resent-Bcc"))
-	email.ResentMessageID = hp.parseMessageId(header.Get("Resent-Message-ID"))
-	email.MessageID = hp.parseMessageId(header.Get("Message-ID"))
-	email.InReplyTo = hp.parseMessageIdList(header.Get("In-Reply-To"))
-	email.References = hp.parseMessageIdList(header.Get("References"))
+	email.ResentMessageID = hp.parseMessageID(header.Get("Resent-Message-ID"))
+	email.MessageID = hp.parseMessageID(header.Get("Message-ID"))
+	email.InReplyTo = hp.parseMessageIDList(header.Get("In-Reply-To"))
+	email.References = hp.parseMessageIDList(header.Get("References"))
 	email.ResentDate = hp.parseTime(header.Get("Resent-Date"))
 
 	if hp.err != nil {
@@ -133,7 +133,7 @@ func parseMultipartRelated(msg io.Reader, boundary string) (textBody, htmlBody s
 			}
 
 			textBody += strings.TrimSuffix(string(ppContent[:]), "\n")
-		case contentTypeTextHtml:
+		case contentTypeTextHTML:
 			ppContent, err := ioutil.ReadAll(part)
 			if err != nil {
 				return textBody, htmlBody, embeddedFiles, err
@@ -190,7 +190,7 @@ func parseMultipartAlternative(msg io.Reader, boundary string) (textBody, htmlBo
 			}
 
 			textBody += strings.TrimSuffix(string(ppContent[:]), "\n")
-		case contentTypeTextHtml:
+		case contentTypeTextHTML:
 			ppContent, err := ioutil.ReadAll(part)
 			if err != nil {
 				return textBody, htmlBody, embeddedFiles, err
@@ -262,7 +262,7 @@ func parseMultipartMixed(msg io.Reader, boundary string) (textBody, htmlBody str
 
 			textBody += strings.TrimSuffix(string(ppContent[:]), "\n")
 
-		case contentTypeTextHtml:
+		case contentTypeTextHTML:
 			ppContent, err := ioutil.ReadAll(part)
 			if err != nil {
 				return textBody, htmlBody, attachments, embeddedFiles, err
@@ -505,7 +505,7 @@ func (hp headerParser) parseTime(s string) (t time.Time) {
 	return
 }
 
-func (hp headerParser) parseMessageId(s string) string {
+func (hp headerParser) parseMessageID(s string) string {
 	if hp.err != nil {
 		return ""
 	}
@@ -513,14 +513,14 @@ func (hp headerParser) parseMessageId(s string) string {
 	return strings.Trim(s, "<> ")
 }
 
-func (hp headerParser) parseMessageIdList(s string) (result []string) {
+func (hp headerParser) parseMessageIDList(s string) (result []string) {
 	if hp.err != nil {
 		return
 	}
 
 	for _, p := range strings.Split(s, " ") {
 		if strings.Trim(p, " \n") != "" {
-			result = append(result, hp.parseMessageId(p))
+			result = append(result, hp.parseMessageID(p))
 		}
 	}
 
