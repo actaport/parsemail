@@ -1,6 +1,8 @@
 # Parsemail - simple email parsing Go library
 
  [![Go Report Card](https://goreportcard.com/badge/github.com/actaport/parsemail)](https://goreportcard.com/report/github.com/actaport/parsemail)
+ [![CI](https://github.com/actaport/parsemail/workflows/Test/badge.svg)](https://github.com/actaport/parsemail/actions/workflows/test.yml)
+
 
 This library allows for parsing an email message into a more convenient form than the `net/mail` provides. Where the `net/mail` just gives you a map of header fields and a `io.Reader` of its body, Parsemail allows access to all the standard header fields set in [RFC5322](https://tools.ietf.org/html/rfc5322), html/text body as well as attachements/embedded content as binary streams with metadata.
 
