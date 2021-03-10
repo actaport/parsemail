@@ -127,14 +127,30 @@ func parseMultipartRelated(msg io.Reader, boundary string) (textBody, htmlBody s
 
 		switch contentType {
 		case contentTypeTextPlain:
-			ppContent, err := ioutil.ReadAll(part)
+			// Content-Transfer-Encoding
+			var content io.Reader = part
+			if encodeTo := part.Header.Get("Content-Transfer-Encoding"); encodeTo != "" {
+				if content, err = decodeContent(part, encodeTo); err != nil {
+					return textBody, htmlBody, embeddedFiles, err
+				}
+			}
+
+			ppContent, err := ioutil.ReadAll(content)
 			if err != nil {
 				return textBody, htmlBody, embeddedFiles, err
 			}
 
 			textBody += strings.TrimSuffix(string(ppContent[:]), "\n")
 		case contentTypeTextHTML:
-			ppContent, err := ioutil.ReadAll(part)
+			// Content-Transfer-Encoding
+			var content io.Reader = part
+			if encodeTo := part.Header.Get("Content-Transfer-Encoding"); encodeTo != "" {
+				if content, err = decodeContent(part, encodeTo); err != nil {
+					return textBody, htmlBody, embeddedFiles, err
+				}
+			}
+
+			ppContent, err := ioutil.ReadAll(content)
 			if err != nil {
 				return textBody, htmlBody, embeddedFiles, err
 			}
@@ -184,14 +200,31 @@ func parseMultipartAlternative(msg io.Reader, boundary string) (textBody, htmlBo
 
 		switch contentType {
 		case contentTypeTextPlain:
-			ppContent, err := ioutil.ReadAll(part)
+			// Content-Transfer-Encoding
+			var content io.Reader = part
+			if encodeTo := part.Header.Get("Content-Transfer-Encoding"); encodeTo != "" {
+				if content, err = decodeContent(part, encodeTo); err != nil {
+					return textBody, htmlBody, embeddedFiles, err
+				}
+			}
+
+			ppContent, err := ioutil.ReadAll(content)
 			if err != nil {
 				return textBody, htmlBody, embeddedFiles, err
 			}
 
 			textBody += strings.TrimSuffix(string(ppContent[:]), "\n")
+
 		case contentTypeTextHTML:
-			ppContent, err := ioutil.ReadAll(part)
+			// Content-Transfer-Encoding
+			var content io.Reader = part
+			if encodeTo := part.Header.Get("Content-Transfer-Encoding"); encodeTo != "" {
+				if content, err = decodeContent(part, encodeTo); err != nil {
+					return textBody, htmlBody, embeddedFiles, err
+				}
+			}
+
+			ppContent, err := ioutil.ReadAll(content)
 			if err != nil {
 				return textBody, htmlBody, embeddedFiles, err
 			}
@@ -255,7 +288,15 @@ func parseMultipartMixed(msg io.Reader, boundary string) (textBody, htmlBody str
 			}
 
 		case contentTypeTextPlain:
-			ppContent, err := ioutil.ReadAll(part)
+			// Content-Transfer-Encoding
+			var content io.Reader = part
+			if encodeTo := part.Header.Get("Content-Transfer-Encoding"); encodeTo != "" {
+				if content, err = decodeContent(part, encodeTo); err != nil {
+					return textBody, htmlBody, attachments, embeddedFiles, err
+				}
+			}
+
+			ppContent, err := ioutil.ReadAll(content)
 			if err != nil {
 				return textBody, htmlBody, attachments, embeddedFiles, err
 			}
@@ -263,7 +304,15 @@ func parseMultipartMixed(msg io.Reader, boundary string) (textBody, htmlBody str
 			textBody += strings.TrimSuffix(string(ppContent[:]), "\n")
 
 		case contentTypeTextHTML:
-			ppContent, err := ioutil.ReadAll(part)
+			// Content-Transfer-Encoding
+			var content io.Reader = part
+			if encodeTo := part.Header.Get("Content-Transfer-Encoding"); encodeTo != "" {
+				if content, err = decodeContent(part, encodeTo); err != nil {
+					return textBody, htmlBody, attachments, embeddedFiles, err
+				}
+			}
+
+			ppContent, err := ioutil.ReadAll(content)
 			if err != nil {
 				return textBody, htmlBody, attachments, embeddedFiles, err
 			}
@@ -437,7 +486,7 @@ func decodeContent(content io.Reader, encoding string) (io.Reader, error) {
 		}
 
 		return bytes.NewReader(b), nil
-	case "7bit":
+	case "7bit", "8bit":
 		dd, err := ioutil.ReadAll(content)
 		if err != nil {
 			return nil, err
