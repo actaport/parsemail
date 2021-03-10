@@ -4,6 +4,14 @@
 
 This library allows for parsing an email message into a more convenient form than the `net/mail` provides. Where the `net/mail` just gives you a map of header fields and a `io.Reader` of its body, Parsemail allows access to all the standard header fields set in [RFC5322](https://tools.ietf.org/html/rfc5322), html/text body as well as attachements/embedded content as binary streams with metadata.
 
+## FORK
+
+This is a fork from https://github.com/DusanKasan/parsemail but it seems that its no more maintained.
+
+There are really good pull-requests on the original project, that not merged yet. This repo will implement some of these pull-requests and salt them with tests :)
+
+If the pullrequest will be merged some day, this project will be closed :) ( or rebased )
+
 ## Simple usage
 
 You just parse a io.Reader that holds the email data. The returned Email struct contains all the standard email information/headers  as public fields.
