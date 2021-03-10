@@ -16,6 +16,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install dependencies
+        run: |
+          go version
+          go get -u golang.org/x/lint/golint
+
       - name: Test With Coverage
         run: go test -gcflags=-l -v -coverprofile=coverage.txt -covermode=atomic ./...
 
